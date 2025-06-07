@@ -10,11 +10,6 @@ def tracer(frame, event, arg = None):
 
     return tracer
 
-def foo():
-    return "foo_result"
-
-def check():
-    return foo()
-
 settrace(tracer)
-check()
+
+# wrapper func here
