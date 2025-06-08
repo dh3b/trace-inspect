@@ -4,9 +4,6 @@ INPUT_PATH = 'input.py'
 
 def tracer(frame, event, arg = None):
     code = frame.f_code
-    func_filename = code.co_filename
-    if func_filename != INPUT_PATH:
-        return tracer
     func_name = code.co_name
     line_no = frame.f_lineno
 
