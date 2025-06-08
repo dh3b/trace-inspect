@@ -3,14 +3,26 @@ from sys import settrace
 INPUT_PATH = 'input.py'
 
 def tracer(frame, event, arg = None):
-    code = frame.f_code
-    func_name = code.co_name
-    line_no = frame.f_lineno
+    depth = 0
+    current_frame = frame
+    while current_frame:
+        depth += 1
+        current_frame = current_frame.f_back
+    if depth > 3: # working depth of wrapped input
+        code = frame.f_code
+        func_name = code.co_name
+        line_no = frame.f_lineno
 
-    print(f"A {event} encountered in \
-    {func_name}() at line number {line_no} ")
+        if event == 'line':
+            l_vars = frame.f_locals.copy()
+            g_vars = frame.f_globals.copy()
+            print(f"Line {line_no} → {l_vars}")
+        else:
+            print(f"A {event} encountered in \
+            {func_name}() at line number {line_no} ")
 
-    return tracer
+        return tracer
+    return None
 
 def wrap_input(f_path: str) -> str:
     with open(f_path, 'r') as f:
