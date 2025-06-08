@@ -15,11 +15,12 @@ def tracer(frame, event, arg = None):
 
         if event == 'line':
             l_vars = frame.f_locals.copy()
-            g_vars = frame.f_globals.copy()
             print(f"Line {line_no} → {l_vars}")
+        elif event == 'return':
+            l_vars = frame.f_locals.copy()
+            print(f"Return from {func_name}() → {l_vars} at line no. {line_no}")
         else:
-            print(f"A {event} encountered in \
-            {func_name}() at line number {line_no} ")
+            print(f"A {event} encountered in {func_name}() at line no. {line_no}")
 
         return tracer
     return None
