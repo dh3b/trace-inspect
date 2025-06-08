@@ -20,9 +20,13 @@ def wrap_input(f_path: str) -> str:
         f_cont = f.read()
     return f_cont
 
-code_str = wrap_input(INPUT_PATH)
-x = compile(code_str, INPUT_PATH, 'exec')
+def main():
+    code_str = wrap_input(INPUT_PATH)
+    x = compile(code_str, INPUT_PATH, 'exec')
 
-settrace(tracer)
-exec(x)
-settrace(None)
+    settrace(tracer)
+    exec(x)
+    settrace(None)
+
+if __name__ == '__main__':
+    main()
