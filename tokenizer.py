@@ -49,8 +49,18 @@ class ExecutionTracer:
 
             l_vars = frame.f_locals.copy()
             for key, val in l_vars.items():
-                if not self.tokens[key] or self.tokens[key][-1] != val:
-                    self.tokens[key].append(val)
+                last_token = self.tokens[key][-1] if self.tokens[key] else None
+                append = False
+
+                if not last_token:
+                    prefix = 'initialize'
+                    append = True
+                elif last_token[0] != val:
+                    prefix = 'change'
+                    append = True
+
+                if append:
+                    self.tokens[key].append([val, line_no, prefix])
 
             if event == 'line':
                 self.logger.info(f"Line {line_no} → {l_vars}")
