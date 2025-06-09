@@ -71,8 +71,3 @@ class ExecutionTracer:
         settrace(None)
         
         return self.tokens
-
-if __name__ == '__main__':
-    src_x = ExecutionTracer('input.py')
-    tokens = src_x.tokenize()
-    print(tokens)
