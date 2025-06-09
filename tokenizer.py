@@ -1,6 +1,7 @@
 from sys import settrace
 from pathlib import Path
 from collections import defaultdict
+import logging
 
 def resolve_path(file_path) -> str:
     if not file_path:
@@ -16,9 +17,18 @@ def resolve_path(file_path) -> str:
     return abs_path
 
 class ExecutionTracer:
-    def __init__(self, input_path='input.py'):
+    def __init__(self, input_path='input.py', log_level=logging.INFO, depth_threshold=3):
         self.f_path = resolve_path(input_path)
+        logging.basicConfig(
+            level=logging.INFO,
+            format='[%(levelname)s] %(message)s'
+        )
+
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(log_level)
+
         self.tokens = defaultdict(list)
+        self.depth_threshold = depth_threshold
         
     def __wrap_input(self) -> str:
         with open(self.f_path, 'r') as f:
@@ -32,7 +42,7 @@ class ExecutionTracer:
             depth += 1
             current_frame = current_frame.f_back
             
-        if depth > 3:  # working depth of wrapped input
+        if depth > self.depth_threshold:  # working depth of wrapped input
             code = frame.f_code
             func_name = code.co_name
             line_no = frame.f_lineno
@@ -43,11 +53,11 @@ class ExecutionTracer:
                     self.tokens[key].append(val)
 
             if event == 'line':
-                print(f"Line {line_no} → {l_vars}")
+                self.logger.info(f"Line {line_no} → {l_vars}")
             elif event == 'return':
-                print(f"Return from {func_name}() → {l_vars} at line no. {line_no}")
+                self.logger.info(f"Return from {func_name}() → {l_vars} at line no. {line_no}")
             else:
-                print(f"A {event} encountered in {func_name}() at line no. {line_no}")
+                self.logger.info(f"A {event} encountered in {func_name}() at line no. {line_no}")
 
             return self.__trace_code
         return None
