@@ -1,4 +1,4 @@
-from tokenizer import ExecutionTracer
+from exec_trace import ExecutionTracer
 
 def main():
     src_x = ExecutionTracer('input.py', depth_threshold=4)
