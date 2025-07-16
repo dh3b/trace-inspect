@@ -1,20 +1,8 @@
 from sys import settrace
-from pathlib import Path
+from utils import resolve_path
+from utils import wrap_input
 from collections import defaultdict
 import logging
-
-def resolve_path(file_path) -> str:
-    if not file_path:
-        raise ValueError("Path cannot be empty")
-        
-    path_obj = Path(file_path)
-    if not path_obj.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    if not path_obj.is_file():
-        raise ValueError(f"Path is not a file: {file_path}")
-
-    abs_path = str(path_obj.resolve())
-    return abs_path
 
 class ExecutionTracer:
     def __init__(self, input_path='input.py', log_level=logging.INFO, depth_threshold=3):
@@ -29,11 +17,6 @@ class ExecutionTracer:
 
         self.tokens = defaultdict(list)
         self.depth_threshold = depth_threshold
-        
-    def __wrap_input(self) -> str:
-        with open(self.f_path, 'r') as f:
-            self.f_cont = f.read()
-        return self.f_cont
     
     def __trace_code(self, frame, event, arg=None):
         depth = 0
@@ -73,7 +56,7 @@ class ExecutionTracer:
         return None
     
     def tokenize(self):
-        code_str = self.__wrap_input()
+        code_str = wrap_input(self.f_path)
         compiled_code = compile(code_str, self.f_path, 'exec')
         
         settrace(self.__trace_code)
