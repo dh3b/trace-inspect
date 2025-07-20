@@ -53,6 +53,9 @@ class ExecutionTracer:
     
     def tokenize(self):
         code_str = wrap_input(self.f_path)
+        if not code_str:
+            self.logger.error(f"Failed to read or compile the file: {self.f_path}")
+            return {}
         compiled_code = compile(code_str, self.f_path, 'exec')
         
         settrace(self.__trace_code)

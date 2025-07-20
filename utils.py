@@ -14,6 +14,13 @@ def resolve_path(f_path) -> str:
     return abs_path
 
 def wrap_input(f_path) -> str:
-    with open(f_path, 'r') as f:
-        f_cont = f.read()
-    return f_cont
+    try:
+        with open(f_path, 'r') as f:
+            f_cont = f.read()
+        compile(f_cont, f_path, 'exec')
+        return f_cont
+    except SyntaxError:
+        return ''  # Return empty string if syntax error occurs
+    except Exception as e:
+        print(f"Error checking file {f_path}: {e}")
+        return ''
