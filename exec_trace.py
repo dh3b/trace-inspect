@@ -15,7 +15,7 @@ class ExecutionTracer:
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(log_level)
 
-        self.tokens = defaultdict(list)
+        self.var_tokens = {}
         self.depth_threshold = depth_threshold
     
     def __trace_code(self, frame, event, arg=None):
@@ -28,22 +28,18 @@ class ExecutionTracer:
         if depth > self.depth_threshold:  # working depth of wrapped input
             code = frame.f_code
             func_name = code.co_name
-            line_no = frame.f_lineno
+            line_no = frame.f_lineno - 1 # 0-based line number
 
             l_vars = frame.f_locals.copy()
             for key, val in l_vars.items():
-                last_token = self.tokens[key][-1] if self.tokens[key] else None
-                append = False
-
-                if not last_token:
+                prefix = None
+                if key not in self.var_tokens:
+                    self.var_tokens[key] = []
                     prefix = 'initialize'
-                    append = True
-                elif last_token[0] != val:
+                elif val != self.var_tokens[key][-1][0]: 
                     prefix = 'change'
-                    append = True
-
-                if append:
-                    self.tokens[key].append([val, line_no, prefix])
+                if prefix:
+                    self.var_tokens[key].append((val, line_no, prefix))
 
             if event == 'line':
                 self.logger.info(f"Line {line_no} → {l_vars}")
@@ -63,4 +59,4 @@ class ExecutionTracer:
         exec(compiled_code)
         settrace(None)
         
-        return self.tokens
+        return self.var_tokens
